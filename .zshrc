@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/lowe.stalnacke/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -107,59 +107,30 @@ export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
-export PATH="$PATH:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin"
+export PATH="$PATH:$HOME/neovim/bin:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/bin"
 
 export NVM_DIR="$HOME/.nvm"
-. "/usr/local/opt/nvm/nvm.sh"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
 
 eval "$(zoxide init zsh)"
 
-# place this after nvm initialization!
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local node_version="$(nvm version)"
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$node_version" ]; then
-      nvm use
-    fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
-
 alias root='cd "$(git rev-parse --show-toplevel)"'
 
+alias nvim="$HOME/neovim/bin/nvim"
 alias v="nvim"
-alias vv="mvim"
 alias gs="git status"
 alias re="cd ~/repos"
 alias ..="cd .."
 alias vrc="nvim ~/.vimrc"
+alias nrc="nvim ~/.config/nvim/init.lua"
 alias zrc="nvim ~/.zshrc"
 alias trc="nvim ~/.tmux.conf"
+alias dotfiles='/usr/bin/git --git-dir=$HOME/repos/dotfiles/.git/ --work-tree=$HOME'
 
 eval $(thefuck --alias)
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# tabtab source for serverless package
-# uninstall by removing these lines or running `tabtab uninstall serverless`
-[[ -f /Users/lowe.stalnacke/repos/atgse/node_modules/tabtab/.completions/serverless.zsh ]] && . /Users/lowe.stalnacke/repos/atgse/node_modules/tabtab/.completions/serverless.zsh
-# tabtab source for sls package
-# uninstall by removing these lines or running `tabtab uninstall sls`
-[[ -f /Users/lowe.stalnacke/repos/atgse/node_modules/tabtab/.completions/sls.zsh ]] && . /Users/lowe.stalnacke/repos/atgse/node_modules/tabtab/.completions/sls.zsh
-# tabtab source for slss package
-# uninstall by removing these lines or running `tabtab uninstall slss`
-[[ -f /Users/lowe.stalnacke/repos/atgse/node_modules/tabtab/.completions/slss.zsh ]] && . /Users/lowe.stalnacke/repos/atgse/node_modules/tabtab/.completions/slss.zsh
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PYENV_ROOT="$HOME/.pyenv"
@@ -174,8 +145,7 @@ export LC_ALL="en_US.UTF-8"
 export GIT_PAGER='delta'
 
 export BAT_THEME='OneHalfDark'
-
 export XDG_CONFIG_HOME="$HOME/.config"
-export LUA_PATH='/usr/local/Cellar/luarocks/3.3.1/share/lua/5.3/?.lua;/Users/lowe.stalnacke/lua;/Users/lowe.stalnacke/.luarocks/share/lua/5.3/?.lua;/Users/lowe.stalnacke/.luarocks/share/lua/5.3/?/init.lua;/usr/local/share/lua/5.3/?.lua;/usr/local/share/lua/5.3/?/init.lua;?.lua'
-export LUA_CPATH='/usr/local/lib/lua/5.3/?.so;/usr/local/lib/lua/5.3/loadall.so;./?.so;/Users/lowe.stalnacke/.luarocks/lib/lua/5.3/?.so'
-export PATH='/Users/lowe.stalnacke/.luarocks/bin:/Users/lowe.stalnacke/.pyenv/shims:/Users/lowe.stalnacke/.pyenv/bin:/Users/lowe.stalnacke/.yarn/bin:/Users/lowe.stalnacke/.config/yarn/global/node_modules/.bin:/Users/lowe.stalnacke/.nvm/versions/node/v12.9.0/bin:/Users/lowe.stalnacke/.nvm/versions/node/v12.16.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Users/lowe.stalnacke/.fzf/bin:/Users/lowe.stalnacke/go-workspace/bin:/usr/local/opt/go/libexec/bin:/usr/local/git/bin'
+export LUA_PATH="$HOME/lua;$HOME/lua-5.3.5;$HOME/.luarocks/share/lua/5.3/?.lua;$HOME/.luarocks/share/lua/5.3/?/init.lua;/usr/local/share/lua/5.3/?.lua;/usr/local/share/lua/5.3/?/init.lua;?.lua"
+export LUA_CPATH="/usr/local/lib/lua/5.3/?.so;/usr/local/lib/lua/5.3/loadall.so;./?.so;$HOME/.luarocks/lib/lua/5.3/?.so"
+export PATH="$PATH:$HOME/.luarocks/bin:$HOME/.pyenv/shims:$HOME/.pyenv/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$HOME/.nvm/versions/node/v12.9.0/bin:$HOME/.nvm/versions/node/v12.16.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.fzf/bin:$HOME/go-workspace/bin:/usr/local/opt/go/libexec/bin:/usr/local/git/bin"
