@@ -232,7 +232,17 @@ return require('packer').startup({
 					fzf_opts = {
 						['--layout'] = false,
 					},
+					files = {
+						cmd = "rg --files --hidden -g '!{.git,node_modules}/*'",
+					},
 				})
+
+				require('fzf-lua').all_lines = function()
+					require('fzf-lua').files({
+						cmd = "rg --hidden --line-number --no-heading --vimgrep --smart-case --trim -g '!{.git,node_modules}/*' '^.*[A-z]+.*'",
+					})
+				end
+
 				vim.api.nvim_set_keymap(
 					'n',
 					'<LEADER><TAB>',
@@ -254,7 +264,7 @@ return require('packer').startup({
 				vim.api.nvim_set_keymap(
 					'n',
 					'<LEADER>s',
-					"<cmd>lua require('fzf-lua').live_grep()<CR>",
+					[[<cmd>lua require('fzf-lua').all_lines()<CR>]],
 					{ noremap = true }
 				)
 			end,
@@ -274,12 +284,24 @@ return require('packer').startup({
 					}
 				end
 
+				local eslintd = function()
+					return {
+						exe = 'eslint_d',
+						args = {
+							'--fix-to-stdout',
+							'--stdin',
+							'--stdin-filename=' .. vim.fn.fnameescape(vim.api.nvim_buf_get_name(0)),
+						},
+						stdin = true,
+					}
+				end
+
 				require('formatter').setup({
 					logging = true,
 					filetype = {
-						javascript = { prettierd },
-						typescript = { prettierd },
-						typescriptreact = { prettierd },
+						javascript = { eslintd, prettierd },
+						typescript = { eslintd, prettierd },
+						typescriptreact = { eslintd, prettierd },
 						json = { prettierd },
 						lua = {
 							function()
@@ -298,11 +320,11 @@ return require('packer').startup({
 
 				vim.api.nvim_exec(
 					[[
-                augroup FormatAutogroup
-                autocmd!
-                autocmd BufWritePost *.tsx,*.ts,*.js,*.jsx,*.json,*.lua FormatWrite
-                augroup END
-            ]],
+                        augroup FormatAutogroup
+                        autocmd!
+                        autocmd BufWritePost *.tsx,*.ts,*.js,*.jsx,*.json,*.lua FormatWrite
+                        augroup END
+                    ]],
 					true
 				)
 			end,
@@ -327,6 +349,7 @@ return require('packer').startup({
 					'yamlls',
 					'json',
 					'html',
+					'efm',
 				}
 
 				for _, server in pairs(required_servers) do
