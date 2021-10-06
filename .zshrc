@@ -106,6 +106,7 @@ export GOPATH=$HOME/go-workspace # don't forget to change your path correctly!
 export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
+export GO111MODULE=auto
 
 export PATH="$PATH:$HOME/neovim/bin:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/bin"
 
@@ -117,7 +118,6 @@ eval "$(zoxide init zsh)"
 
 alias root='cd "$(git rev-parse --show-toplevel)"'
 
-alias nvim="$HOME/neovim/bin/nvim"
 alias v="nvim"
 alias gs="git status"
 alias re="cd ~/repos"
