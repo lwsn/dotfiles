@@ -126,7 +126,7 @@ alias vrc="nvim ~/.vimrc"
 alias nrc="nvim ~/.config/nvim/init.lua"
 alias zrc="nvim ~/.zshrc"
 alias trc="nvim ~/.tmux.conf"
-alias dotfiles='/usr/bin/git --git-dir=$HOME/repos/dotfiles/.git/ --work-tree=$HOME'
+alias dotfiles="/usr/bin/git --git-dir=$HOME/repos/dotfiles/.git/ --work-tree=$HOME"
 
 eval $(thefuck --alias)
 
