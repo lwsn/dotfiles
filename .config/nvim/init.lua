@@ -26,15 +26,6 @@ vim.opt.clipboard = 'unnamedplus'
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
--- Highlight on yank
-vim.api.nvim_exec(
-   'augroup YankHighlight\n'
-      .. 'autocmd!\n'
-      .. 'autocmd TextYankPost * silent! lua vim.highlight.on_yank {timeout = 500}\n'
-      .. 'augroup end',
-   false
-)
-
 --------------
 -- Mappings --
 --------------
@@ -87,6 +78,7 @@ vim.api.nvim_set_keymap('', '<LEADER>q', ':q<CR>', { noremap = true })
 -- Auto install plugin manager
 
 local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
+local packer_bootstrap
 
 if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
    packer_bootstrap = vim.fn.system {
@@ -213,6 +205,14 @@ return require('packer').startup {
       }
 
       use {
+         'machakann/vim-highlightedyank',
+         config = function()
+            -- built in yank highlight crashes when deleting more than 430 lines when LSP is enabled?????
+            vim.g.highlightedyank_highlight_duration = 500
+         end,
+      }
+
+      use {
          'APZelos/blamer.nvim',
          config = function()
             vim.g.blamer_delay = 500
@@ -227,6 +227,43 @@ return require('packer').startup {
             require('lualine').setup {
                options = {
                   theme = 'onedark',
+                  section_separators = { '', '' },
+                  component_separators = { '', '' },
+               },
+               sections = {
+                  lualine_a = {
+                     {
+                        'mode',
+                        format = function(str)
+                           return (
+                                 ({
+                                    ['V-BLOCK'] = 'B',
+                                    ['V-LINE'] = 'L',
+                                 })[str] or str:sub(0, 1)
+                              )
+                        end,
+                     },
+                  },
+                  lualine_c = {
+                     {
+                        'filename',
+                        path = 1,
+                        format = function(str)
+                           return str:gsub('/./', '/')
+                        end,
+                     },
+                  },
+               },
+               inactive_sections = {
+                  lualine_c = {
+                     {
+                        'filename',
+                        path = 1,
+                        format = function(str)
+                           return str:gsub('/./', '/')
+                        end,
+                     },
+                  },
                },
             }
          end,
@@ -269,32 +306,26 @@ return require('packer').startup {
 
             vim.api.nvim_set_keymap(
                'n',
-               '<Leader><TAB>',
+               '<LEADER><TAB>',
                "<cmd>lua require('fzf-lua').buffers()<CR>",
                { noremap = true }
             )
             vim.api.nvim_set_keymap(
                'n',
-               '<Leader><Space>',
+               '<LEADER><Space>',
                "<cmd>lua require('fzf-lua').files()<CR>",
                { noremap = true }
             )
             vim.api.nvim_set_keymap(
                'n',
-               '<Leader>r',
+               '<LEADER>r',
                "<cmd>lua require('fzf-lua').oldfiles()<CR>",
                { noremap = true }
             )
             vim.api.nvim_set_keymap(
                'n',
-               '<Leader>sa',
+               '<LEADER>s',
                [[<cmd>lua require('fzf-lua').all_lines()<CR>]],
-               { noremap = true }
-            )
-            vim.api.nvim_set_keymap(
-               'n',
-               '<Leader>sg',
-               [[<cmd>lua require('fzf-lua').grep()<CR>]],
                { noremap = true }
             )
          end,
@@ -312,24 +343,12 @@ return require('packer').startup {
                }
             end
 
-            local eslintd = function()
-               return {
-                  exe = 'eslint_d',
-                  args = {
-                     '--fix-to-stdout',
-                     '--stdin',
-                     '--stdin-filename=' .. vim.fn.fnameescape(vim.api.nvim_buf_get_name(0)),
-                  },
-                  stdin = true,
-               }
-            end
-
             require('formatter').setup {
                logging = true,
                filetype = {
-                  javascript = { eslintd, prettierd },
-                  typescript = { eslintd, prettierd },
-                  typescriptreact = { eslintd, prettierd },
+                  javascript = { prettierd },
+                  typescript = { prettierd },
+                  typescriptreact = { prettierd },
                   json = { prettierd },
                   lua = {
                      function()
@@ -377,9 +396,7 @@ return require('packer').startup {
                'sumneko_lua',
                'tsserver',
                'yamlls',
-               'json',
                'html',
-               'efm',
             }
 
             for _, server in pairs(required_servers) do
@@ -390,6 +407,15 @@ return require('packer').startup {
             local lsp_installer = require 'nvim-lsp-installer'
             local cmp = require 'cmp'
             local luasnip = require 'luasnip'
+
+            local has_words_before = function()
+               local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+               return col ~= 0
+                  and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
+                        :sub(col, col)
+                        :match '%s'
+                     == nil
+            end
 
             cmp.setup {
                snippet = {
@@ -405,46 +431,33 @@ return require('packer').startup {
                      behavior = cmp.ConfirmBehavior.Replace,
                      select = true,
                   },
-                  ['<Tab>'] = function(fallback)
-                     if vim.fn.pumvisible() == 1 then
-                        vim.fn.feedkeys(
-                           vim.api.nvim_replace_termcodes('<C-n>', true, true, true),
-                           'n'
-                        )
+                  ['<Tab>'] = cmp.mapping(function(fallback)
+                     if cmp.visible() then
+                        cmp.select_next_item()
                      elseif luasnip.expand_or_jumpable() then
-                        vim.fn.feedkeys(
-                           vim.api.nvim_replace_termcodes(
-                              '<Plug>luasnip-expand-or-jump',
-                              true,
-                              true,
-                              true
-                           ),
-                           ''
-                        )
+                        luasnip.expand_or_jump()
+                     elseif has_words_before() then
+                        cmp.complete()
                      else
                         fallback()
                      end
-                  end,
-                  ['<S-Tab>'] = function(fallback)
-                     if vim.fn.pumvisible() == 1 then
-                        vim.fn.feedkeys(
-                           vim.api.nvim_replace_termcodes('<C-p>', true, true, true),
-                           'n'
-                        )
+                  end, {
+                     'i',
+                     's',
+                  }),
+
+                  ['<S-Tab>'] = cmp.mapping(function(fallback)
+                     if cmp.visible() then
+                        cmp.select_prev_item()
                      elseif luasnip.jumpable(-1) then
-                        vim.fn.feedkeys(
-                           vim.api.nvim_replace_termcodes(
-                              '<Plug>luasnip-jump-prev',
-                              true,
-                              true,
-                              true
-                           ),
-                           ''
-                        )
+                        luasnip.jump(-1)
                      else
                         fallback()
                      end
-                  end,
+                  end, {
+                     'i',
+                     's',
+                  }),
                },
                sources = {
                   { name = 'nvim_lsp' },
@@ -456,7 +469,7 @@ return require('packer').startup {
             capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
             lsp_installer.on_server_ready(function(server)
-               local on_attach = function(client, bufnr)
+               local on_attach = function(_, bufnr)
                   local function buf_set_keymap(...)
                      vim.api.nvim_buf_set_keymap(bufnr, ...)
                   end
@@ -469,7 +482,6 @@ return require('packer').startup {
 
                   -- Mappings.
                   local opts = { noremap = true, silent = true }
-
                   -- See `:help vim.lsp.*` for documentation on any of the below functions
                   buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
                   buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
@@ -507,10 +519,24 @@ return require('packer').startup {
                   )
                end
 
-               server:setup {
+               local opts = {
                   on_attach = on_attach,
                   capabilities = capabilities,
                }
+
+               if server == 'eslint' then
+                  opts.on_attach = function(client, bufnr)
+                     -- neovim's LSP client does not currently support dynamic capabilities registration, so we need to set
+                     -- the resolved capabilities of the eslint server ourselves!
+                     client.resolved_capabilities.document_formatting = true
+                     on_attach(client, bufnr)
+                  end
+                  opts.settings = {
+                     format = { enable = true }, -- this will enable formatting
+                  }
+               end
+
+               server:setup(opts)
 
                vim.cmd [[ do User LspAttachBuffers ]]
             end)
