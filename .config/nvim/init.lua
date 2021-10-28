@@ -68,8 +68,8 @@ vim.api.nvim_set_keymap('t', '<C-l>', '<C-w>l', { noremap = true })
 
 vim.api.nvim_set_keymap('', '<C-E>', ':e %:p:h', { noremap = true })
 
-vim.api.nvim_set_keymap('', '<LEADER>w', ':w<CR>', { noremap = true })
-vim.api.nvim_set_keymap('', '<LEADER>q', ':q<CR>', { noremap = true })
+vim.api.nvim_set_keymap('', '<Leader>w', ':w<CR>', { noremap = true })
+vim.api.nvim_set_keymap('', '<Leader>q', ':q<CR>', { noremap = true })
 
 -------------
 -- Plugins --
@@ -120,13 +120,13 @@ return require('packer').startup {
       use {
          'tpope/vim-fugitive',
          config = function()
-            vim.api.nvim_set_keymap('n', '<LEADER>gg', ':Git<SPACE>', { noremap = true })
-            vim.api.nvim_set_keymap('n', '<LEADER>gs', ':Git<CR>', { noremap = true })
-            vim.api.nvim_set_keymap('n', '<LEADER>gb', ':Git blame<CR>', { noremap = true })
-            vim.api.nvim_set_keymap('n', '<LEADER>gc', ':Git commit<CR>', { noremap = true })
-            vim.api.nvim_set_keymap('n', '<LEADER>gd', ':Gvdiffsplit<CR>', { noremap = true })
-            vim.api.nvim_set_keymap('n', '<LEADER>gl', ':Gclog<CR>', { noremap = true })
-            vim.api.nvim_set_keymap('n', '<LEADER>gp', ':Git push<CR>', { noremap = true })
+            vim.api.nvim_set_keymap('n', '<Leader>gg', ':Git<SPACE>', { noremap = true })
+            vim.api.nvim_set_keymap('n', '<Leader>gs', ':Git<CR>', { noremap = true })
+            vim.api.nvim_set_keymap('n', '<Leader>gb', ':Git blame<CR>', { noremap = true })
+            vim.api.nvim_set_keymap('n', '<Leader>gc', ':Git commit<CR>', { noremap = true })
+            vim.api.nvim_set_keymap('n', '<Leader>gd', ':Gvdiffsplit<CR>', { noremap = true })
+            vim.api.nvim_set_keymap('n', '<Leader>gl', ':Gclog<CR>', { noremap = true })
+            vim.api.nvim_set_keymap('n', '<Leader>gp', ':Git push<CR>', { noremap = true })
          end,
       }
       use 'tpope/vim-rhubarb'
@@ -217,7 +217,7 @@ return require('packer').startup {
          config = function()
             vim.g.blamer_delay = 500
             vim.g.blamer_show_in_insert_modes = 0
-            vim.api.nvim_set_keymap('', '<LEADER>b', ':BlamerToggle<CR>', { noremap = true })
+            vim.api.nvim_set_keymap('', '<Leader>b', ':BlamerToggle<CR>', { noremap = true })
          end,
       }
 
@@ -244,6 +244,7 @@ return require('packer').startup {
                         end,
                      },
                   },
+                  lualine_b = {},
                   lualine_c = {
                      {
                         'filename',
@@ -253,6 +254,9 @@ return require('packer').startup {
                         end,
                      },
                   },
+                  lualine_x = {},
+                  lualine_y = { 'location' },
+                  lualine_z = {},
                },
                inactive_sections = {
                   lualine_c = {
@@ -306,26 +310,32 @@ return require('packer').startup {
 
             vim.api.nvim_set_keymap(
                'n',
-               '<LEADER><TAB>',
+               '<Leader><TAB>',
                "<cmd>lua require('fzf-lua').buffers()<CR>",
                { noremap = true }
             )
             vim.api.nvim_set_keymap(
                'n',
-               '<LEADER><Space>',
+               '<Leader><Space>',
                "<cmd>lua require('fzf-lua').files()<CR>",
                { noremap = true }
             )
             vim.api.nvim_set_keymap(
                'n',
-               '<LEADER>r',
+               '<Leader>r',
                "<cmd>lua require('fzf-lua').oldfiles()<CR>",
                { noremap = true }
             )
             vim.api.nvim_set_keymap(
                'n',
-               '<LEADER>s',
+               '<Leader>sa',
                [[<cmd>lua require('fzf-lua').all_lines()<CR>]],
+               { noremap = true }
+            )
+            vim.api.nvim_set_keymap(
+               'n',
+               '<Leader>sg',
+               [[<cmd>lua require('fzf-lua').grep()<CR>]],
                { noremap = true }
             )
          end,
@@ -343,12 +353,24 @@ return require('packer').startup {
                }
             end
 
+            local eslintd = function()
+               return {
+                  exe = 'eslint_d',
+                  args = {
+                     '--fix-to-stdout',
+                     '--stdin',
+                     '--stdin-filename=' .. vim.fn.fnameescape(vim.api.nvim_buf_get_name(0)),
+                  },
+                  stdin = true,
+               }
+            end
+
             require('formatter').setup {
                logging = true,
                filetype = {
-                  javascript = { prettierd },
-                  typescript = { prettierd },
-                  typescriptreact = { prettierd },
+                  javascript = { eslintd, prettierd },
+                  typescript = { eslintd, prettierd },
+                  typescriptreact = { eslintd, prettierd },
                   json = { prettierd },
                   lua = {
                      function()
@@ -397,6 +419,7 @@ return require('packer').startup {
                'tsserver',
                'yamlls',
                'html',
+               'flow',
             }
 
             for _, server in pairs(required_servers) do
@@ -468,63 +491,64 @@ return require('packer').startup {
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
-            lsp_installer.on_server_ready(function(server)
-               local on_attach = function(_, bufnr)
-                  local function buf_set_keymap(...)
-                     vim.api.nvim_buf_set_keymap(bufnr, ...)
-                  end
-                  local function buf_set_option(...)
-                     vim.api.nvim_buf_set_option(bufnr, ...)
-                  end
-
-                  --Enable completion triggered by <c-x><c-o>
-                  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-                  -- Mappings.
-                  local opts = { noremap = true, silent = true }
-                  -- See `:help vim.lsp.*` for documentation on any of the below functions
-                  buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-                  buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-                  buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-                  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-                  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-                  buf_set_keymap(
-                     'n',
-                     '<leader>D',
-                     '<cmd>lua vim.lsp.buf.type_definition()<CR>',
-                     opts
-                  )
-                  buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-                  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-                  buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-                  buf_set_keymap('n', '<C-p>', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-                  buf_set_keymap('n', '<C-n>', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-                  buf_set_keymap(
-                     'n',
-                     '<space>Wa',
-                     '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>',
-                     opts
-                  )
-                  buf_set_keymap(
-                     'n',
-                     '<space>Wr',
-                     '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>',
-                     opts
-                  )
-                  buf_set_keymap(
-                     'n',
-                     '<space>Wl',
-                     '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>',
-                     opts
-                  )
+            local on_attach = function(_, bufnr)
+               local function buf_set_keymap(...)
+                  vim.api.nvim_buf_set_keymap(bufnr, ...)
+               end
+               local function buf_set_option(...)
+                  vim.api.nvim_buf_set_option(bufnr, ...)
                end
 
+               --Enable completion triggered by <c-x><c-o>
+               buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+               -- Mappings.
+               local opts = { noremap = true, silent = true }
+               -- See `:help vim.lsp.*` for documentation on any of the below functions
+               buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+               buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+               buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+               buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+               buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+               buf_set_keymap('n', '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+               buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+               buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+               buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+               buf_set_keymap('n', '<C-p>', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+               buf_set_keymap('n', '<C-n>', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+               buf_set_keymap(
+                  'n',
+                  '<space>Wa',
+                  '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>',
+                  opts
+               )
+               buf_set_keymap(
+                  'n',
+                  '<space>Wr',
+                  '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>',
+                  opts
+               )
+               buf_set_keymap(
+                  'n',
+                  '<space>Wl',
+                  '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>',
+                  opts
+               )
+            end
+
+            require('lspconfig').flow.setup {
+               on_attach = on_attach,
+               filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx' },
+               capabilities = capabilities,
+            }
+
+            lsp_installer.on_server_ready(function(server)
                local opts = {
                   on_attach = on_attach,
                   capabilities = capabilities,
                }
 
-               if server == 'eslint' then
+               if server.name == 'eslint' then
                   opts.on_attach = function(client, bufnr)
                      -- neovim's LSP client does not currently support dynamic capabilities registration, so we need to set
                      -- the resolved capabilities of the eslint server ourselves!
@@ -534,6 +558,20 @@ return require('packer').startup {
                   opts.settings = {
                      format = { enable = true }, -- this will enable formatting
                   }
+                  opts.root_dir = require('lspconfig').util.root_pattern {
+                     '.eslintrc',
+                     '.eslintrc.js',
+                     '.eslintrc.cjs',
+                     '.eslintrc.yaml',
+                     '.eslintrc.yml',
+                     '.eslintrc.json',
+                  }
+               end
+
+               if server.name == 'tsserver' then
+                  if require('lspconfig').util.root_pattern '.flowconfig'(vim.fn.getcwd()) then
+                     opts.filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' }
+                  end
                end
 
                server:setup(opts)
