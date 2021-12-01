@@ -133,6 +133,10 @@ return require('packer').startup {
       use 'tpope/vim-commentary'
       use 'tpope/vim-surround'
 
+      use 'tommcdo/vim-exchange'
+
+      use 'ggandor/lightspeed.nvim'
+
       -- Add git related info in the signs columns and popups
       use {
          'lewis6991/gitsigns.nvim',
@@ -408,8 +412,8 @@ return require('packer').startup {
             'hrsh7th/cmp-nvim-lsp',
             'williamboman/nvim-lsp-installer',
             'neovim/nvim-lspconfig',
-            'saadparwaiz1/cmp_luasnip',
-            'L3MON4D3/LuaSnip',
+            'hrsh7th/cmp-vsnip',
+            'hrsh7th/vim-vsnip',
          },
          run = function()
             local required_servers = {
@@ -420,6 +424,7 @@ return require('packer').startup {
                'yamlls',
                'html',
                'flow',
+               'eslint',
             }
 
             for _, server in pairs(required_servers) do
@@ -429,7 +434,6 @@ return require('packer').startup {
          config = function()
             local lsp_installer = require 'nvim-lsp-installer'
             local cmp = require 'cmp'
-            local luasnip = require 'luasnip'
 
             local has_words_before = function()
                local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -443,7 +447,7 @@ return require('packer').startup {
             cmp.setup {
                snippet = {
                   expand = function(args)
-                     luasnip.lsp_expand(args.body)
+                     vim.fn['vsnip#anonymous'](args.body) -- For `vsnip` users.
                   end,
                },
                mapping = {
@@ -457,8 +461,6 @@ return require('packer').startup {
                   ['<Tab>'] = cmp.mapping(function(fallback)
                      if cmp.visible() then
                         cmp.select_next_item()
-                     elseif luasnip.expand_or_jumpable() then
-                        luasnip.expand_or_jump()
                      elseif has_words_before() then
                         cmp.complete()
                      else
@@ -472,8 +474,6 @@ return require('packer').startup {
                   ['<S-Tab>'] = cmp.mapping(function(fallback)
                      if cmp.visible() then
                         cmp.select_prev_item()
-                     elseif luasnip.jumpable(-1) then
-                        luasnip.jump(-1)
                      else
                         fallback()
                      end
@@ -484,7 +484,7 @@ return require('packer').startup {
                },
                sources = {
                   { name = 'nvim_lsp' },
-                  { name = 'luasnip' },
+                  { name = 'vsnip' }, -- For vsnip users.
                },
             }
 
@@ -516,6 +516,12 @@ return require('packer').startup {
                buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
                buf_set_keymap('n', '<C-p>', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
                buf_set_keymap('n', '<C-n>', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+               buf_set_keymap(
+                  'n',
+                  '<leader>Wd',
+                  '<cmd>lua vim.lsp.diagnostic.set_loclist({workspace = true})<CR>',
+                  opts
+               )
                buf_set_keymap(
                   'n',
                   '<space>Wa',
@@ -578,6 +584,25 @@ return require('packer').startup {
 
                vim.cmd [[ do User LspAttachBuffers ]]
             end)
+         end,
+      }
+
+      use {
+         'folke/trouble.nvim',
+         requires = 'kyazdani42/nvim-web-devicons',
+         config = function()
+            require('trouble').setup {
+               -- your configuration comes here
+               -- or leave it empty to use the default settings
+               -- refer to the configuration section below
+            }
+
+            vim.api.nvim_set_keymap(
+               'n',
+               '<leader>xw',
+               '<cmd>Trouble lsp_workspace_diagnostics<cr>',
+               { silent = true, noremap = true }
+            )
          end,
       }
 
