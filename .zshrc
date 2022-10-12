@@ -1,5 +1,7 @@
+source ~/repos/znap/zsh-snap/znap.zsh
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+# export ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX=YES
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -9,7 +11,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="agnoster"
-DEFAULT_USER="lowe.stalnacke"
+DEFAULT_USER="lowestalnacke"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -65,9 +67,30 @@ DEFAULT_USER="lowe.stalnacke"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  tmux
+  iterm2
+  zoxide
+  thefuck
+  # pyenv
+  fzf
+  ripgrep
+  nvm
 )
 
+# export PYENV_ROOT="$HOME/.pyenv"
+export NVM_DIR="$HOME/.nvm"
+
+ZSH_TMUX_AUTOSTART=true
+ZSH_TMUX_AUTOQUIT=true
+ZSH_TMUX_AUTOCONNECT=false
+
+znap source marlonrichert/zsh-autocomplete
+
 source $ZSH/oh-my-zsh.sh
+
+eval "$(zoxide init zsh)"
+# eval "$(pyenv init -)" 
+# pyenv global 3.10.1
 
 # User configuration
 
@@ -99,22 +122,14 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-source $HOME/.fzf.zsh
-export FZF_DEFAULT_COMMAND="rg --hidden --files -g '!.git/**/*'" 
+# source $HOME/.fzf.zsh
+# export FZF_DEFAULT_COMMAND="rg --hidden --files -g '!.git/**/*'" 
 
 export GOPATH=$HOME/go-workspace # don't forget to change your path correctly!
 export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 export GO111MODULE=auto
-
-export PATH="$PATH:$HOME/neovim/bin:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/bin"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
-
-eval "$(zoxide init zsh)"
 
 alias root='cd "$(git rev-parse --show-toplevel)"'
 
@@ -128,16 +143,9 @@ alias zrc="nvim ~/.zshrc"
 alias trc="nvim ~/.tmux.conf"
 alias dotfiles="/usr/bin/git --git-dir=$HOME/repos/dotfiles/.git/ --work-tree=$HOME"
 
-eval $(thefuck --alias)
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+alias cat='bat --paging=never'
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
 
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
@@ -148,4 +156,22 @@ export BAT_THEME='OneHalfDark'
 export XDG_CONFIG_HOME="$HOME/.config"
 export LUA_PATH="$HOME/lua;$HOME/lua-5.3.5;$HOME/.luarocks/share/lua/5.3/?.lua;$HOME/.luarocks/share/lua/5.3/?/init.lua;/usr/local/share/lua/5.3/?.lua;/usr/local/share/lua/5.3/?/init.lua;?.lua"
 export LUA_CPATH="/usr/local/lib/lua/5.3/?.so;/usr/local/lib/lua/5.3/loadall.so;./?.so;$HOME/.luarocks/lib/lua/5.3/?.so"
-export PATH="$PATH:$HOME/.luarocks/bin:$HOME/.pyenv/shims:$HOME/.pyenv/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$HOME/.nvm/versions/node/v12.9.0/bin:$HOME/.nvm/versions/node/v12.16.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.fzf/bin:$HOME/go-workspace/bin:/usr/local/opt/go/libexec/bin:/usr/local/git/bin"
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+export PATH="$PATH:$HOME/neovim/bin:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/bin"
+export PATH="$PATH:$HOME/.luarocks/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$HOME/.nvm/versions/node/v12.9.0/bin:$HOME/.nvm/versions/node/v12.16.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.fzf/bin:$HOME/go-workspace/bin:/usr/local/opt/go/libexec/bin:/usr/local/git/bin"
+
+export NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+eval "$(pyenv virtualenv-init -)"

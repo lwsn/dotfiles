@@ -4,12 +4,12 @@
 
 vim.opt.breakindent = true
 vim.opt.completeopt = 'menuone,noinsert,noselect'
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 vim.opt.expandtab = true
 vim.opt.hidden = true
 vim.opt.inccommand = 'nosplit'
 vim.opt.mouse = ''
-vim.opt.number = false
+vim.opt.number = true
 vim.opt.relativenumber = false
 vim.opt.scrolloff = 1
 vim.opt.shiftwidth = 4
@@ -25,6 +25,9 @@ vim.opt.updatetime = 100
 vim.opt.clipboard = 'unnamedplus'
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+-- vim.opt.foldmethod = 'expr'
+-- vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+-- vim.opt.foldlevel = 1
 
 --------------
 -- Mappings --
@@ -39,6 +42,8 @@ vim.api.nvim_set_keymap('', 'ö', '{', { noremap = true })
 vim.api.nvim_set_keymap('', 'ä', '}', { noremap = true })
 vim.api.nvim_set_keymap('', 'Ö', '{', { noremap = true })
 vim.api.nvim_set_keymap('', 'Ä', '}', { noremap = true })
+
+vim.api.nvim_set_keymap('', '€', '$', { noremap = true })
 
 vim.api.nvim_set_keymap('', 'D', 'dd', { noremap = true })
 vim.api.nvim_set_keymap('', 'Y', 'yy', { noremap = true })
@@ -71,6 +76,16 @@ vim.api.nvim_set_keymap('', '<C-E>', ':e %:p:h', { noremap = true })
 vim.api.nvim_set_keymap('', '<Leader>w', ':w<CR>', { noremap = true })
 vim.api.nvim_set_keymap('', '<Leader>q', ':q<CR>', { noremap = true })
 
+vim.api.nvim_exec(
+   [[
+augroup AutoSaveFolds
+autocmd!
+autocmd BufWinLeave ?* mkview
+autocmd BufWinEnter ?* silent! loadview
+augroup END
+    ]],
+   true
+)
 -------------
 -- Plugins --
 -------------
@@ -107,13 +122,27 @@ return require('packer').startup {
       }
 
       -- Theme
+      -- use {
+      --    'navarasu/onedark.nvim',
+      --    as = 'theme',
+      --    config = function()
+      --       require('onedark').setup {
+      --          style = 'dark',
+      --          transparent = true,
+      --       }
+      --       require('onedark').load()
+      --    end,
+      -- }
+      -- Theme
       use {
-         'navarasu/onedark.nvim',
+         'projekt0n/github-nvim-theme',
          as = 'theme',
          config = function()
-            vim.g.onedark_transparent_background = true
-            require('onedark').setup()
-            vim.cmd [[colorscheme onedark]]
+            require('github-theme').setup {
+               theme_style = 'dark',
+               function_style = 'italic',
+               -- transparent = true,
+            }
          end,
       }
 
@@ -132,10 +161,36 @@ return require('packer').startup {
       use 'tpope/vim-rhubarb'
       use 'tpope/vim-commentary'
       use 'tpope/vim-surround'
+      use 'tpope/vim-repeat'
 
       use 'tommcdo/vim-exchange'
 
       use 'ggandor/lightspeed.nvim'
+
+      use 'vim-test/vim-test'
+
+      use {
+         'aserowy/tmux.nvim',
+         config = function()
+            require('tmux').setup {
+               -- overwrite default configuration
+               -- here, e.g. to enable default bindings
+               copy_sync = {
+                  -- enables copy sync and overwrites all register actions to
+                  -- sync registers *, +, unnamed, and 0 till 9 from tmux in advance
+                  enable = false,
+               },
+               navigation = {
+                  -- enables default keybindings (C-hjkl) for normal mode
+                  enable_default_keybindings = true,
+               },
+               resize = {
+                  -- enables default keybindings (A-hjkl) for normal mode
+                  enable_default_keybindings = true,
+               },
+            }
+         end,
+      }
 
       -- Add git related info in the signs columns and popups
       use {
@@ -155,7 +210,7 @@ return require('packer').startup {
          requires = { 'nvim-treesitter/nvim-treesitter' },
          config = function()
             require('nvim-treesitter.configs').setup {
-               ensure_installed = 'maintained',
+               -- ensure_installed = 'maintained',
                highlight = {
                   enable = true, -- false will disable the whole extension
                },
@@ -225,12 +280,50 @@ return require('packer').startup {
          end,
       }
 
+      -- use {
+      --    'feline-nvim/feline.nvim',
+      --    config = function()
+      --       require('feline').setup()
+      --    end,
+      -- }
       use {
          'hoob3rt/lualine.nvim',
          config = function()
+            local colors = {
+               vertsplit = '#181A1F',
+               special_grey = '#3B4048',
+               menu_grey = '#3E4452',
+               cursor_grey = '#2C323C',
+               gutter_fg_grey = '#4B5263',
+               blue = '#82b1ff',
+               dark_red = '#BE5046',
+               white = '#bfc7d5',
+               green = '#C3E88D',
+               purple = '#c792ea',
+               yellow = '#ffcb6b',
+               light_red = '#ff869a',
+               red = '#ff5370',
+               dark_yellow = '#F78C6C',
+               cyan = '#89DDFF',
+               comment_grey = '#697098',
+               black = '#24292e',
+            }
+
+            local theme = {
+               normal = {
+                  a = { fg = colors.green, bg = colors.black, gui = 'bold' },
+                  b = { bg = colors.black },
+                  c = { bg = colors.black },
+               },
+               insert = { a = { fg = colors.blue } },
+               visual = { a = { fg = colors.purple } },
+               replace = { a = { fg = colors.cyan } },
+               inactive = { a = { fg = colors.menu_grey } },
+            }
+
             require('lualine').setup {
                options = {
-                  theme = 'onedark',
+                  theme = theme,
                   section_separators = { '', '' },
                   component_separators = { '', '' },
                },
@@ -238,7 +331,7 @@ return require('packer').startup {
                   lualine_a = {
                      {
                         'mode',
-                        format = function(str)
+                        fmt = function(str)
                            return (
                                  ({
                                     ['V-BLOCK'] = 'B',
@@ -280,6 +373,8 @@ return require('packer').startup {
       use 'romainl/vim-cool'
 
       use 'jiangmiao/auto-pairs'
+
+      use { 'junegunn/fzf', run = './install --bin' }
 
       -- Fuzzy search
       use {
@@ -372,10 +467,11 @@ return require('packer').startup {
             require('formatter').setup {
                logging = true,
                filetype = {
-                  javascript = { eslintd, prettierd },
+                  javascript = { eslintd },
+                  javascriptreact = { eslintd },
+                  json = { prettierd },
                   typescript = { eslintd, prettierd },
                   typescriptreact = { eslintd, prettierd },
-                  json = { prettierd },
                   lua = {
                      function()
                         return {
@@ -414,6 +510,7 @@ return require('packer').startup {
             'neovim/nvim-lspconfig',
             'hrsh7th/cmp-vsnip',
             'hrsh7th/vim-vsnip',
+            'rafamadriz/friendly-snippets',
          },
          run = function()
             local required_servers = {
@@ -423,7 +520,7 @@ return require('packer').startup {
                'tsserver',
                'yamlls',
                'html',
-               'flow',
+               -- 'flow',
                'eslint',
             }
 
@@ -509,17 +606,17 @@ return require('packer').startup {
                buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
                buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
                buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-               buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+               -- buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
                buf_set_keymap('n', '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
                buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
                buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
                buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-               buf_set_keymap('n', '<C-p>', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-               buf_set_keymap('n', '<C-n>', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+               buf_set_keymap('n', '<C-p>', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+               buf_set_keymap('n', '<C-n>', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
                buf_set_keymap(
                   'n',
                   '<leader>Wd',
-                  '<cmd>lua vim.lsp.diagnostic.set_loclist({workspace = true})<CR>',
+                  '<cmd>lua vim.diagnostic.set_loclist({workspace = true})<CR>',
                   opts
                )
                buf_set_keymap(
@@ -541,12 +638,6 @@ return require('packer').startup {
                   opts
                )
             end
-
-            require('lspconfig').flow.setup {
-               on_attach = on_attach,
-               filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx' },
-               capabilities = capabilities,
-            }
 
             lsp_installer.on_server_ready(function(server)
                local opts = {
@@ -571,13 +662,28 @@ return require('packer').startup {
                      '.eslintrc.yaml',
                      '.eslintrc.yml',
                      '.eslintrc.json',
+                     '.git',
                   }
+               end
+
+               if server.name == 'flow' then
+                  opts.filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx' }
                end
 
                if server.name == 'tsserver' then
                   if require('lspconfig').util.root_pattern '.flowconfig'(vim.fn.getcwd()) then
                      opts.filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' }
                   end
+               end
+
+               if server.name == 'sumneko_lua' then
+                  opts.settings = {
+                     Lua = {
+                        diagnostics = {
+                           globals = { 'vim' },
+                        },
+                     },
+                  }
                end
 
                server:setup(opts)
