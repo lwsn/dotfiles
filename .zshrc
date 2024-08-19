@@ -1,4 +1,5 @@
 source ~/repos/znap/zsh-snap/znap.zsh
+# source ~/repos/znap/zsh-snap/znap.zsh
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 # export ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX=YES
@@ -71,10 +72,9 @@ plugins=(
   iterm2
   zoxide
   thefuck
-  # pyenv
+  pyenv
   fzf
   ripgrep
-  nvm
 )
 
 # export PYENV_ROOT="$HOME/.pyenv"
@@ -84,11 +84,11 @@ ZSH_TMUX_AUTOSTART=true
 ZSH_TMUX_AUTOQUIT=true
 ZSH_TMUX_AUTOCONNECT=false
 
-znap source marlonrichert/zsh-autocomplete
+# znap source marlonrichert/zsh-autocomplete
 
 source $ZSH/oh-my-zsh.sh
 
-eval "$(zoxide init zsh)"
+# eval "$(zoxide init zsh)"
 # eval "$(pyenv init -)" 
 # pyenv global 3.10.1
 
@@ -125,8 +125,8 @@ fi
 # source $HOME/.fzf.zsh
 # export FZF_DEFAULT_COMMAND="rg --hidden --files -g '!.git/**/*'" 
 
-export GOPATH=$HOME/go-workspace # don't forget to change your path correctly!
-export GOROOT=/usr/local/opt/go/libexec
+# export GOPATH=$HOME/go-workspace # don't forget to change your path correctly!
+export GOROOT="$(brew --prefix golang)/libexec"
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 export GO111MODULE=auto
@@ -140,6 +140,7 @@ alias ..="cd .."
 alias vrc="nvim ~/.vimrc"
 alias nrc="nvim ~/.config/nvim/init.lua"
 alias zrc="nvim ~/.zshrc"
+alias arc="nvim ~/.alacritty.yml"
 alias trc="nvim ~/.tmux.conf"
 alias dotfiles="/usr/bin/git --git-dir=$HOME/repos/dotfiles/.git/ --work-tree=$HOME"
 
@@ -152,12 +153,13 @@ export LC_ALL="en_US.UTF-8"
 
 export GIT_PAGER='delta'
 
-export BAT_THEME='OneHalfDark'
+export BAT_THEME='base16-256'
 export XDG_CONFIG_HOME="$HOME/.config"
 export LUA_PATH="$HOME/lua;$HOME/lua-5.3.5;$HOME/.luarocks/share/lua/5.3/?.lua;$HOME/.luarocks/share/lua/5.3/?/init.lua;/usr/local/share/lua/5.3/?.lua;/usr/local/share/lua/5.3/?/init.lua;?.lua"
 export LUA_CPATH="/usr/local/lib/lua/5.3/?.so;/usr/local/lib/lua/5.3/loadall.so;./?.so;$HOME/.luarocks/lib/lua/5.3/?.so"
 
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
+export JAVA_17_HOME=$(/usr/libexec/java_home -v 17)
+export JAVA_HOME=$JAVA_17_HOME
 export PATH=$JAVA_HOME/bin:$PATH
 
 export ANDROID_HOME=$HOME/Library/Android/sdk
@@ -168,10 +170,26 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 
 export PATH="$PATH:$HOME/neovim/bin:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/bin"
 export PATH="$PATH:$HOME/.luarocks/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$HOME/.nvm/versions/node/v12.9.0/bin:$HOME/.nvm/versions/node/v12.16.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.fzf/bin:$HOME/go-workspace/bin:/usr/local/opt/go/libexec/bin:/usr/local/git/bin"
+export N_PREFIX=$HOME/.n
+export PATH=$N_PREFIX/bin:$PATH
+export PATH="$PATH"
 
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-eval "$(pyenv virtualenv-init -)"
+# eval "$(pyenv virtualenv-init -)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+eval "$(direnv hook zsh)"
+
+# pnpm
+export PNPM_HOME="/Users/lowestalnacke/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
