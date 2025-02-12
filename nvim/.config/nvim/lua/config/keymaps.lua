@@ -23,6 +23,21 @@ vim.keymap.set("v", "ª", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>g
 vim.keymap.set("n", "˛", "<cmd>bp<cr>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "ﬁ", "<cmd>bn<cr>", { desc = "Next Buffer" })
 
+vim.keymap.set("n", "<leader>G", function()
+  Snacks.lazygit({ cwd = LazyVim.root.git() })
+end, { desc = "Lazygit (Root Dir)" })
+
+local diagnostic_goto = function(next, severity)
+  local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+  severity = severity and vim.diagnostic.severity[severity] or nil
+  return function()
+    go({ severity = severity })
+  end
+end
+
+vim.keymap.set("n", "<C-n>", diagnostic_goto(true), { desc = "Next Diagnostic" })
+vim.keymap.set("n", "<C-p>", diagnostic_goto(false), { desc = "Prev Diagnostic" })
+
 -- default keymaps I dislike
 vim.keymap.del("n", "<leader><tab>l")
 vim.keymap.del("n", "<leader><tab>o")

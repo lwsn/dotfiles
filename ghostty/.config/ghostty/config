@@ -1,4 +1,4 @@
-theme = Firewatch
+theme = catppuccin-mocha
 
 keybind = clear
 keybind = ctrl+shift+c=copy_to_clipboard

@@ -20,6 +20,18 @@ return {
         end,
         desc = "Buffers",
       },
+      {
+        "<leader>R",
+        LazyVim.pick("oldfiles"),
+        desc = "Recent Files",
+      },
+      {
+        "<leader>r",
+        function()
+          Snacks.picker.recent({ filter = { cwd = true } })
+        end,
+        desc = "Recent Files (Root)",
+      },
     },
   },
 }
