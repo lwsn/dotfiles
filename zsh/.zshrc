@@ -133,6 +133,7 @@ export GO111MODULE=auto
 
 alias root='cd "$(git rev-parse --show-toplevel)"'
 
+alias p="pnpm"
 alias v="nvim"
 alias gs="git status"
 alias re="cd ~/repos"

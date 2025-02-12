@@ -1,3 +1,7 @@
+## Requirements
+
+Neovim
+
 ## Stow
 
 ```bash
