@@ -38,6 +38,11 @@ end
 vim.keymap.set("n", "<C-n>", diagnostic_goto(true), { desc = "Next Diagnostic" })
 vim.keymap.set("n", "<C-p>", diagnostic_goto(false), { desc = "Prev Diagnostic" })
 
+vim.keymap.set("n", "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Pane Down Tmux", silent = true })
+vim.keymap.set("n", "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Pane Up Tmux", silent = true })
+vim.keymap.set("n", "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Pane Left Tmux", silent = true })
+vim.keymap.set("n", "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Pane Right Tmux", silent = true })
+
 -- default keymaps I dislike
 vim.keymap.del("n", "<leader><tab>l")
 vim.keymap.del("n", "<leader><tab>o")

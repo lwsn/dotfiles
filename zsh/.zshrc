@@ -144,6 +144,7 @@ alias zrc="nvim ~/.zshrc"
 alias arc="nvim ~/.alacritty.yml"
 alias trc="nvim ~/.tmux.conf"
 alias dotfiles="/usr/bin/git --git-dir=$HOME/repos/dotfiles/.git/ --work-tree=$HOME"
+alias y="yazi"
 
 alias cat='bat --paging=never'
 
@@ -194,3 +195,6 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# opencode
+export PATH=/Users/lowestalnacke/.opencode/bin:$PATH

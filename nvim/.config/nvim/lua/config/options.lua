@@ -6,3 +6,4 @@ vim.g.snacks_animate = false
 
 vim.opt.number = false
 vim.opt.relativenumber = false
+vim.opt.wrap = true
