@@ -3,7 +3,9 @@
 
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = []
+after-startup-command = [
+  'exec-and-forget borders active_color=0x77ffffff inactive_color=0x22ffffff width=4.0',
+]
 
 # Start AeroSpace at login
 start-at-login = false
@@ -27,8 +29,8 @@ default-root-container-orientation = 'auto'
 
 # Mouse follows focus when focused monitor changes
 # Drop it from your config, if you don't like this behavior
-# See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
 # See https://nikitabobko.github.io/AeroSpace/commands#move-mouse
+# See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
 # Fallback value (if you omit the key): on-focused-monitor-changed = []
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
@@ -53,10 +55,10 @@ preset = 'qwerty'
 [gaps]
 inner.horizontal = 8
 inner.vertical = 8
-outer.left = 0
-outer.bottom = 0
-outer.top = 0
-outer.right = 0
+outer.left = 4
+outer.bottom = 4
+outer.top = 4
+outer.right = 4
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -101,12 +103,16 @@ cmd-shift-j = 'focus down'
 cmd-shift-k = 'focus up'
 cmd-shift-l = 'focus right'
 
-
 # See: https://nikitabobko.github.io/AeroSpace/commands#move
 cmd-ctrl-shift-h = 'move left'
 cmd-ctrl-shift-j = 'move down'
 cmd-ctrl-shift-k = 'move up'
 cmd-ctrl-shift-l = 'move right'
+
+cmd-ctrl-h = ['join-with left', 'mode main']
+cmd-ctrl-j = ['join-with down', 'mode main']
+cmd-ctrl-k = ['join-with up', 'mode main']
+cmd-ctrl-l = ['join-with right', 'mode main']
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#resize
 cmd-shift-0 = 'resize smart -100'
@@ -142,6 +148,13 @@ alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 # See: https://nikitabobko.github.io/AeroSpace/commands#mode
 alt-shift-comma = 'mode service'
 
+cmd-shift-z = 'exec-and-forget open -a /Applications/Ghostty.app'
+cmd-shift-x = 'exec-and-forget open -a /Applications/Slack.app'
+cmd-shift-c = 'exec-and-forget open -a /Applications/Google\ Chrome.app'
+
+cmd-shift-f = 'layout floating tiling'
+cmd-ctrl-shift-f = 'fullscreen'
+
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 [mode.service.binding]
@@ -156,11 +169,15 @@ backspace = ['close-all-windows-but-current', 'mode main']
 # sticky is not yet supported https://github.com/nikitabobko/AeroSpace/issues/2
 #s = ['layout sticky tiling', 'mode main']
 
-cmd-ctrl-h = ['join-with left', 'mode main']
-cmd-ctrl-j = ['join-with down', 'mode main']
-cmd-ctrl-k = ['join-with up', 'mode main']
-cmd-ctrl-l = ['join-with right', 'mode main']
-
 down = 'volume down'
 up = 'volume up'
 shift-down = ['volume set 0', 'mode main']
+
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = 'layout floating'

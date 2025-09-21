@@ -74,7 +74,6 @@ plugins=(
   thefuck
   pyenv
   fzf
-  ripgrep
 )
 
 # export PYENV_ROOT="$HOME/.pyenv"
@@ -198,3 +197,10 @@ esac
 
 # opencode
 export PATH=/Users/lowestalnacke/.opencode/bin:$PATH
+
+# Carapace https://carapace-sh.github.io/carapace-bin/setup.html
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+source <(carapace _carapace)
+
+source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
