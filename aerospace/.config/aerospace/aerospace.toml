@@ -4,11 +4,11 @@
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = [
-  'exec-and-forget borders active_color=0x77ffffff inactive_color=0x22ffffff width=4.0',
+  'exec-and-forget borders active_color=0xccffffff inactive_color=0x22ffffff width=5.0',
 ]
 
 # Start AeroSpace at login
-start-at-login = false
+start-at-login = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -151,6 +151,7 @@ alt-shift-comma = 'mode service'
 cmd-shift-z = 'exec-and-forget open -a /Applications/Ghostty.app'
 cmd-shift-x = 'exec-and-forget open -a /Applications/Slack.app'
 cmd-shift-c = 'exec-and-forget open -a /Applications/Google\ Chrome.app'
+cmd-shift-w = "exec-and-forget aerospace list-windows --all --format '%{window-id} %{window-title}' | grep -i 'skitsnack' | awk '{print $1}' | xargs -I {} aerospace focus --window-id {}"
 
 cmd-shift-f = 'layout floating tiling'
 cmd-ctrl-shift-f = 'fullscreen'
@@ -180,4 +181,8 @@ run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.systempreferences'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.spotify.client'
 run = 'layout floating'

@@ -1,5 +1,9 @@
 return {
   {
+    "zbirenbaum/copilot.lua",
+    branch = "master",
+  },
+  {
     "CopilotC-Nvim/CopilotChat.nvim",
     opts = function()
       local user = vim.env.USER or "User"
@@ -55,6 +59,19 @@ return {
         mode = { "n", "v" },
       },
     },
+  },
+  {
+    "folke/edgy.nvim",
+    optional = true,
+    opts = function(_, opts)
+      opts.right = opts.right or {}
+
+      table.insert(opts.right, {
+        ft = "copilot-chat",
+        title = "Copilot Chat",
+        size = { width = 50 },
+      })
+    end,
   },
   {
     "NickvanDyke/opencode.nvim",
